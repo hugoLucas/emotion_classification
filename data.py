@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 from librosa.core import load
 from os import listdir, path
-from numpy import pad, zeros
+from numpy import zeros
 
 
 class AudioData(Dataset):
