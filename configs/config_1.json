@@ -1,4 +1,8 @@
 {
   "data_dir": "/media/hugolucas/TOSHIBA EXT/emotion_data",
-  "folder_tag": "Actor_"
+  "folder_tag": "Actor_",
+  "file_type": ".wav",
+  "audio_sample_rate": 1000,
+  "audio_max_length": 5,
+  "batch_size": 1
 }
