@@ -29,17 +29,19 @@ optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 running_loss = 0.0
 for i, data in enumerate(train_loader, 0):
     # Get the inputs and wrap them
-    inputs = Variable(data.cuda())
+    inputs, labels = data
+    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
 
     # Zero out the gradients
     optimizer.zero_grad()
 
     # Propagate forward, backwards
     outputs = audio_model(inputs)
-    # loss = loss_fn(outputs, labels)
-    # loss.backward()
-    # optimizer.step()
+    loss = loss_fn(outputs, labels)
+    loss.backward()
+    optimizer.step()
 
     # Log results
-    # running_loss += loss.data[0]
+    running_loss += loss.data[0]
+    print(running_loss)
     break
