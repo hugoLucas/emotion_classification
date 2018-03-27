@@ -28,5 +28,4 @@ class BidirectionalLSTM(Module):
             out, hidden = self.lstm_1(val.view(1, 1, -1), hidden)
         x = self.reul(self.dense_2(out))
         x = self.softmax(self.dense_3(x))
-        print(x)
         return x
