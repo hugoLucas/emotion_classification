@@ -14,12 +14,16 @@ class AudioData(Dataset):
         file_path = self.file_list[index]
         audio_data, _ = load(file_path, sr=self.configs.audio_sample_rate, duration=self.configs.audio_max_length)
 
+        # Pad audio data if not long enough
         if audio_data.size < self.max_samples:
             temp_array = zeros(self.max_samples)
             temp_array[:audio_data.size] = audio_data
             audio_data = temp_array
 
-        return audio_data
+        # Extract label out
+        file_name = self.file_list[index].split()[-1]
+        label = int(file_name.split('-')[self.configs.emotion_index])
+        return audio_data, label
 
     def __len__(self):
         return len(self.file_list)
