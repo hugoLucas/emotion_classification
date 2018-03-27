@@ -8,6 +8,8 @@
   "audio_max_length": 3,
 
   "batch_size": 1,
+  "loss_interval": 25,
+  "epochs": 1,
   "learning_rate": 0.001,
 
   "lstm_layers": 2,
