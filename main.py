@@ -6,6 +6,7 @@ from model import BidirectionalLSTM
 from torch.optim import Adam
 from data import AudioData
 from os.path import join
+from torch import save
 
 
 # Any parameters that may change from run-to-run
@@ -26,22 +27,28 @@ audio_model.cuda()
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 
-running_loss = 0.0
-for i, data in enumerate(train_loader, 0):
-    # Get the inputs and wrap them
-    inputs, labels = data
-    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+for epoch in range(0, model_configs.epochs):
+    running_loss, iter = 0.0, 0
+    for i, data in enumerate(train_loader, 0):
+        # Get the inputs and wrap them
+        inputs, labels = data
+        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
 
-    # Zero out the gradients
-    optimizer.zero_grad()
+        # Zero out the gradients
+        optimizer.zero_grad()
 
-    # Propagate forward, backwards
-    outputs = audio_model(inputs)
-    loss = loss_fn(outputs, labels)
-    loss.backward()
-    optimizer.step()
+        # Propagate forward, backwards
+        outputs = audio_model(inputs)
+        loss = loss_fn(outputs, labels)
+        loss.backward()
+        optimizer.step()
 
-    # Log results
-    running_loss += loss.data[0]
-    print(running_loss)
-    break
+        # Log results
+        running_loss += loss.data[0]
+        iter += 1
+
+        if i % model_configs.log_interval == 0:
+            print('loss at {}.{}: {}'.format(epoch, iter, running_loss/model_configs.loss_interval))
+# Save model after training
+save(audio_model.state_dict(), '/saved_models')
+
