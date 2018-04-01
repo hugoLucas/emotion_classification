@@ -1,23 +1,22 @@
 from utils.config_utils import get_config_from_json
-from torch.autograd.variable import Variable
 from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 from model import BidirectionalLSTM
+from trainer import AudioTrainer
 from torch.optim import Adam
 from data import AudioData
 from os.path import join
-from torch import save
-
 
 # Any parameters that may change from run-to-run
 RUN_CONFIG_FILE = "config_1.json"
+MODEL_NAME = "large_batch_size.pt"
 
 # Run Configs
 model_configs, _ = get_config_from_json(join('./configs', RUN_CONFIG_FILE))
 
 # Data
 audio_data = AudioData(configs=model_configs)
-train_loader = DataLoader(dataset=audio_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=1)
+train_loader = DataLoader(dataset=audio_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=4)
 
 # Model
 audio_model = BidirectionalLSTM(model_configs=model_configs)
@@ -27,28 +26,8 @@ audio_model.cuda()
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 
-for epoch in range(0, model_configs.epochs):
-    running_loss, iter = 0.0, 0
-    for i, data in enumerate(train_loader, 0):
-        # Get the inputs and wrap them
-        inputs, labels = data
-        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+# Train Model
+trainer = AudioTrainer(model_configs, audio_model, audio_data, loss_fn, optimizer, save_path="./models/new_model.pt")
+acc_data, loss_data = trainer.train()
 
-        # Zero out the gradients
-        optimizer.zero_grad()
-
-        # Propagate forward, backwards
-        outputs = audio_model(inputs)
-        loss = loss_fn(outputs, labels)
-        loss.backward()
-        optimizer.step()
-
-        # Log results
-        running_loss += loss.data[0]
-        iter += 1
-
-        if i % model_configs.log_interval == 0:
-            print('loss at {}.{}: {}'.format(epoch, iter, running_loss/model_configs.loss_interval))
-# Save model after training
-save(audio_model.state_dict(), '/saved_models')
 
