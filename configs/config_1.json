@@ -1,19 +1,19 @@
 {
-  "data_dir": "/media/hugolucas/TOSHIBA EXT/emotion_data",
+  "data_dir": "/home/hugolucas/emotion_data",
   "folder_tag": "Actor_",
   "file_type": ".wav",
   "emotion_index": 2,
 
-  "audio_sample_rate": 100,
+  "audio_sample_rate": 200,
   "audio_max_length": 3,
 
-  "batch_size": 1,
-  "loss_interval": 25,
-  "epochs": 1,
-  "learning_rate": 0.001,
+  "batch_size": 10,
+  "log_interval": 10,
+  "epochs": 500,
+  "learning_rate": 0.0005,
 
-  "lstm_layers": 2,
-  "lstm_output_dim": 50,
-  "dense_1_output_dim": 50,
+  "lstm_layers": 3,
+  "lstm_output_dim": 150,
+  "dense_1_output_dim": 512,
   "dense_2_output_dim": 8
 }
