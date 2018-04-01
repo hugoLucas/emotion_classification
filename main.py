@@ -3,13 +3,13 @@ from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 from model import BidirectionalLSTM
 from trainer import AudioTrainer
+from logger import AudioLogger
 from torch.optim import Adam
 from data import AudioData
 from os.path import join
 
 # Any parameters that may change from run-to-run
 RUN_CONFIG_FILE = "config_1.json"
-MODEL_NAME = "large_batch_size.pt"
 
 # Run Configs
 model_configs, _ = get_config_from_json(join('./configs', RUN_CONFIG_FILE))
@@ -27,7 +27,9 @@ loss_fn = CrossEntropyLoss()
 optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 
 # Train Model
-trainer = AudioTrainer(model_configs, audio_model, audio_data, loss_fn, optimizer, save_path="./models/new_model.pt")
+trainer = AudioTrainer(model_configs, audio_model, train_loader, loss_fn, optimizer, save_path="./models/new_model2.pt")
 acc_data, loss_data = trainer.train()
 
-
+# Results
+logger = AudioLogger(acc_data, loss_data)
+logger.show_results()
