@@ -1,5 +1,6 @@
 from torch import save, load, topk, eq, squeeze, sum
 from torch.autograd.variable import Variable
+from utils.config_utils import sum_list
 from os.path import isfile
 
 
@@ -16,13 +17,13 @@ class AudioTrainer:
     def train(self):
         historical_accuracy_data, historical_loss_data = {}, {}
 
-        for epoch in self.configs.epochs:
+        for epoch in range(0, self.configs.epochs):
 
             accuracy_data, loss_data, iterations = [], [], 0
-            for i, data in enumerate(self.data):
+            for i, datum in enumerate(self.data):
 
                 # Load inputs and make them cuda accessible
-                inputs, labels = data
+                inputs, labels = datum
                 inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
 
                 # Skip this iteration if the batch is incomplete
@@ -44,16 +45,18 @@ class AudioTrainer:
 
                 # Add data to current iterations results
                 accuracy_data.append(accuracy)
-                loss_data.append(loss)
+                loss_data.append(loss.data[0])
                 iterations += 1
 
             # Log results
-            historical_accuracy_data[epoch] = sum(accuracy_data)/(iterations * self.configs.batch_size)
-            historical_loss_data[epoch] = sum(loss_data)/(iterations * self.configs.batch_size)
+            historical_accuracy_data[epoch] = sum_list(accuracy_data)/(iterations * self.configs.batch_size)
+            historical_loss_data[epoch] = sum_list(loss_data)/(iterations * self.configs.batch_size)
 
             # Save model
             if self.save_path is not None:
                 save(self.model.state_dict(), self.save_path)
+
+            print("Epoch {} complete.".format(epoch))
 
         return historical_accuracy_data, historical_loss_data
 
