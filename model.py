@@ -1,8 +1,13 @@
-from torch.nn import Module, LSTM, Linear, ReLU
-from torch import cat, stack
+from torch.nn import Module, LSTM, Linear
+from torch.nn.functional import relu
+from torch import cat
 
 
 class BidirectionalLSTM(Module):
+    """
+    Model is based on model found in paper: Emotion Recognition From Speech With Recurrent Neural Networks.
+    My GPU cannot handle the full model however so I have cut down on some of the parameters.
+    """
 
     def __init__(self, model_configs):
         super(BidirectionalLSTM, self).__init__()
@@ -12,7 +17,6 @@ class BidirectionalLSTM(Module):
                            num_layers=self.configs.lstm_layers, batch_first=False, dropout=1, bidirectional=True)
         self.dense_2 = Linear(in_features=2 * self.configs.lstm_output_dim,
                               out_features=self.configs.dense_1_output_dim)
-        self.reul = ReLU()
         self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
 
     def forward(self, x):
@@ -28,6 +32,6 @@ class BidirectionalLSTM(Module):
             else:
                 y = cat([y, y_prime], dim=0)
 
-        x = self.reul(self.dense_2(y))
+        x = relu(self.dense_2(y))
         x = self.dense_3(x)
         return x
