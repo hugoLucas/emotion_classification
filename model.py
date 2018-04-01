@@ -1,6 +1,5 @@
 from torch.nn import Module, LSTM, Linear, ReLU
-from torch.autograd.variable import Variable
-from torch import randn
+from torch import cat, stack
 
 
 class BidirectionalLSTM(Module):
@@ -17,14 +16,18 @@ class BidirectionalLSTM(Module):
         self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
 
     def forward(self, x):
-        dim1, dim3 = self.configs.lstm_layers * 2 * self.configs.batch_size, self.configs.lstm_output_dim
+        x = x.view(self.configs.batch_size, -1, 1)
+        x, hidden = self.lstm_1(x)
 
-        h1, h2 = randn(dim1, 1, dim3), randn(dim1, 1, dim3)
-        h1, h2 = Variable(h1.cuda()), Variable(h2.cuda())
+        y = None
+        for i in range(0, self.configs.batch_size):
+            y_prime = cat([x[i,0,0:self.configs.lstm_output_dim], x[i,-1,self.configs.lstm_output_dim:]])
+            y_prime = y_prime.view(1, -1)
+            if i == 0:
+                y = y_prime
+            else:
+                y = cat([y, y_prime], dim=0)
 
-        hidden = (h1, h2)
-        for val in x[0]:
-            out, hidden = self.lstm_1(val.view(1, 1, -1), hidden)
-        x = self.reul(self.dense_2(out))
+        x = self.reul(self.dense_2(y))
         x = self.dense_3(x)
-        return x.view(1, -1)
+        return x
