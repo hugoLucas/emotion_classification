@@ -16,3 +16,7 @@ def get_config_from_json(json_file):
     config = Bunch(config_dict)
 
     return config, config_dict
+
+
+def sum_list(input_list):
+    return sum(input_list)
