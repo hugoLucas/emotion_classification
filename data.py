@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
+from numpy import zeros, reshape
 from librosa.core import load
 from os import listdir, path
-from numpy import zeros
 
 
 class AudioData(Dataset):
@@ -23,7 +23,7 @@ class AudioData(Dataset):
         # Extract label out
         file_name = self.file_list[index].split()[-1]
         label = int(file_name.split('-')[self.configs.emotion_index])
-        return audio_data, label - 1
+        return audio_data.reshape(-1, 1), label - 1
 
     def __len__(self):
         return len(self.file_list)
