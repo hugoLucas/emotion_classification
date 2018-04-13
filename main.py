@@ -26,10 +26,10 @@ audio_model.cuda()
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 
-# Train Model
-trainer = AudioTrainer(model_configs, audio_model, train_loader, loss_fn, optimizer, save_path="./models/new_model2.pt")
-acc_data, loss_data = trainer.train()
+# Logger
+logger = AudioLogger("./run.json")
 
-# Results
-logger = AudioLogger(acc_data, loss_data)
-logger.show_results()
+# Train Model
+trainer = AudioTrainer(model_configs, audio_model, train_loader, loss_fn, optimizer, logger,
+                       save_path="./models/new_model2.pt")
+acc_data, loss_data = trainer.train()
