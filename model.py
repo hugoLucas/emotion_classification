@@ -1,5 +1,6 @@
 from torch.nn import Module, LSTM, Linear
 from torch.nn.functional import relu
+from torch import cat
 
 
 class BidirectionalLSTM(Module):
@@ -21,6 +22,7 @@ class BidirectionalLSTM(Module):
 
     def forward(self, x):
         x, _ = self.lstm_1(x)
-        x = relu(self.dense_2(x[:, -1, :]))
+        x = cat((x[:, -1, self.configs.lstm_output_dim:], x[:, 0, :self.configs.lstm_output_dim]), 1)
+        x = relu(self.dense_2(x))
         x = self.dense_3(x)
         return x
