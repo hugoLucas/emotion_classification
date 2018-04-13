@@ -1,29 +1,16 @@
-import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 
 
 class AudioLogger:
-    def __init__(self, acc_data, loss_data):
-        self.acc_data = acc_data
-        self.loss_data = loss_data
+    def __init__(self, destination):
+        self.client = SummaryWriter()
+        self.destination = destination
 
-    def show_results(self):
-        x_axis, acc, loss = self.get_data()
+    def add_data_point(self, data_name, data_point, iter):
+        self.client.add_scalar(data_name, data_point, iter)
 
-        plt.figure(1)
-        plt.subplot(211)
-        plt.plot(x_axis, acc, 'k')
+    def export(self):
+        self.client.export_scalars_to_json(self.destination)
 
-        plt.subplot(212)
-        plt.plot(x_axis, loss, 'k')
-
-        plt.show()
-
-    def get_data(self):
-        keys = sorted(self.acc_data.keys())
-
-        acc, loss = [], []
-        for k in keys:
-            acc.append(self.acc_data[k])
-            loss.append(self.loss_data[k])
-        return keys, acc, loss
-
+    def close(self):
+        self.client.close()
