@@ -54,7 +54,8 @@ class AudioTrainer:
                     break
 
             # Log epoch results
-            self.log_epoch_results(accuracy_sum, loss_sum, iter, epoch)
+            if iter % self.configs.log_interval == 0:
+                self.log_epoch_results(accuracy_sum, loss_sum, iter, epoch)
 
             # Save model
             if self.save_path is not None:
