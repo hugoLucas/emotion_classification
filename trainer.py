@@ -66,12 +66,12 @@ class AudioTrainer:
         self.logger.close()
 
     def log_epoch_results(self, accuracy_sum, loss_sum, iter, epoch):
-        self.logger.add_data_point(self.configs.avg_acc, accuracy_sum/iter, epoch)
+        self.logger.add_data_point(self.configs.avg_acc, accuracy_sum/(iter * self.configs.batch_size), epoch)
         self.logger.add_data_point(self.configs.avg_loss, loss_sum/iter, epoch)
 
     def log_batch_results(self, accuracy, loss, iter, epoch):
         n_iter = (epoch * self.configs.iterations) + iter
-        self.logger.add_data_point(self.configs.inst_acc, accuracy, n_iter)
+        self.logger.add_data_point(self.configs.inst_acc, accuracy/self.configs.batch_size, n_iter)
         self.logger.add_data_point(self.configs.inst_loss, loss, n_iter)
 
     def load_model(self):
