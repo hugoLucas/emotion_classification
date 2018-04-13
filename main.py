@@ -32,4 +32,4 @@ logger = AudioLogger("./run.json")
 # Train Model
 trainer = AudioTrainer(model_configs, audio_model, train_loader, loss_fn, optimizer, logger,
                        save_path="./models/new_model2.pt")
-acc_data, loss_data = trainer.train()
+trainer.train()
