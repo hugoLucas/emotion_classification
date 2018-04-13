@@ -8,12 +8,17 @@
   "audio_max_length": 3,
 
   "batch_size": 10,
-  "log_interval": 10,
-  "epochs": 500,
+  "iterations": 20,
+  "epochs": 100,
   "learning_rate": 0.0005,
 
   "lstm_layers": 3,
-  "lstm_output_dim": 150,
+  "lstm_output_dim": 200,
   "dense_1_output_dim": 512,
-  "dense_2_output_dim": 8
+  "dense_2_output_dim": 8,
+
+  "avg_acc": "data/average_accuracy",
+  "avg_loss": "data/average_loss",
+  "inst_acc": "data/accuracy",
+  "inst_loss": "data/loss"
 }
