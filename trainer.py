@@ -53,6 +53,9 @@ class AudioTrainer:
                             self.log_batch_results(accuracy, loss.data[0], n_iter, epoch)
                             print("{}.{} complete....".format(epoch, n_iter))
 
+                        if n_iter >= self.configs.iterations:
+                            break
+
                 except TypeError:
                     print("Error on Epoch {}...".format(epoch))
 
