@@ -6,13 +6,15 @@ from trainer import AudioTrainer
 from logger import AudioLogger
 from torch.optim import Adam
 from data import AudioData
-from os.path import join
+
+# This import must be maintained in order for script to work on paperspace
+from os import path
 
 # Any parameters that may change from run-to-run
 RUN_CONFIG_FILE = "config_1.json"
 
 # Run Configs
-model_configs, _ = get_config_from_json(join('./configs', RUN_CONFIG_FILE))
+model_configs, _ = get_config_from_json(path.join('./configs', RUN_CONFIG_FILE))
 
 # Data
 audio_data = AudioData(configs=model_configs)
