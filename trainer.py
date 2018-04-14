@@ -1,7 +1,6 @@
 from torch import save, load, topk, eq, squeeze, sum
 from torch.autograd.variable import Variable
-from utils.config_utils import sum_list
-from os.path import isfile
+from os import path
 
 
 class AudioTrainer:
@@ -18,44 +17,46 @@ class AudioTrainer:
     def train(self):
         for epoch in range(0, self.configs.epochs):
 
-            accuracy_sum, loss_sum, iter = 0, 0, 0
-            for i, datum in enumerate(self.data):
+            accuracy_sum, loss_sum, n_iter = 0, 0, 0
+            while n_iter < self.configs.iterations:
+                try:
+                    for i, datum in enumerate(self.data):
 
-                # Load inputs and make them cuda accessible
-                inputs, labels = datum
-                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                        # Load inputs and make them cuda accessible
+                        inputs, labels = datum
+                        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
 
-                # Skip this iteration if the batch is incomplete
-                if not inputs.shape[0] == labels.shape[0] == self.configs.batch_size:
-                    continue
+                        # Skip this iteration if the batch is incomplete
+                        if not inputs.shape[0] == labels.shape[0] == self.configs.batch_size:
+                            continue
 
-                # Zero out grads, go forward
-                self.optimizer.zero_grad()
-                outputs = self.model(inputs)
+                        # Zero out grads, go forward
+                        self.optimizer.zero_grad()
+                        outputs = self.model(inputs)
 
-                # Calculate loss and propagate backwards
-                loss = self.loss(outputs, labels)
-                loss.backward()
-                self.optimizer.step()
+                        # Calculate loss and propagate backwards
+                        loss = self.loss(outputs, labels)
+                        loss.backward()
+                        self.optimizer.step()
 
-                # Calculate accuracy of predictions
-                _, max_index = topk(outputs, k=1)
-                accuracy = sum(eq(squeeze(max_index), labels)).data[0]
+                        # Calculate accuracy of predictions
+                        _, max_index = topk(outputs, k=1)
+                        accuracy = sum(eq(squeeze(max_index), labels)).data[0]
 
-                # Track epoch results
-                accuracy_sum += accuracy
-                loss_sum += loss.data[0]
-                iter += 1
+                        # Track epoch results
+                        accuracy_sum += accuracy
+                        loss_sum += loss.data[0]
+                        n_iter += 1
 
-                # Log iteration results
-                self.log_batch_results(accuracy, loss.data[0], iter, epoch)
+                        # Log iteration results
+                        if n_iter % self.configs.log_interval == 0:
+                            self.log_batch_results(accuracy, loss.data[0], n_iter, epoch)
+                            print("{}.{} complete....".format(epoch, n_iter))
 
-                if iter == self.configs.iterations:
-                    break
+                except TypeError:
+                    print("Error on Epoch {}...".format(epoch))
 
-            # Log epoch results
-            if iter % self.configs.log_interval == 0:
-                self.log_epoch_results(accuracy_sum, loss_sum, iter, epoch)
+            self.log_epoch_results(accuracy_sum, loss_sum, n_iter, epoch)
 
             # Save model
             if self.save_path is not None:
@@ -64,6 +65,7 @@ class AudioTrainer:
             print("Epoch {} complete.".format(epoch))
 
             self.logger.export()
+
         self.logger.close()
 
     def log_epoch_results(self, accuracy_sum, loss_sum, iter, epoch):
@@ -81,7 +83,7 @@ class AudioTrainer:
         :return: None
         """
         if self.save_path is not None:
-            if isfile(self.save_path):
+            if path.isfile(self.save_path):
                 self.model.load_state_dict(load(self.save_path))
             else:
                 raise ValueError("Cannot find model save file: " + self.save_path)
