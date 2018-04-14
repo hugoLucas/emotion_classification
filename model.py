@@ -19,10 +19,12 @@ class BidirectionalLSTM(Module):
         self.dense_2 = Linear(in_features=2 * self.configs.lstm_output_dim,
                               out_features=self.configs.dense_1_output_dim)
         self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
+        self.dense_4 = Linear(in_features=self.configs.dense_2_output_dim, out_features=self.configs.dense_3_output_dim)
 
     def forward(self, x):
         x, _ = self.lstm_1(x)
         x = cat((x[:, -1, self.configs.lstm_output_dim:], x[:, 0, :self.configs.lstm_output_dim]), 1)
         x = relu(self.dense_2(x))
-        x = self.dense_3(x)
+        x = relu(self.dense_3(x))
+        x = self.dense_4(x)
         return x
