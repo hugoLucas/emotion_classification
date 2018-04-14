@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-from numpy import zeros, reshape
+from numpy import zeros
 from librosa.core import load
 from os import listdir, path
 
