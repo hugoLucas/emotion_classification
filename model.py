@@ -32,9 +32,9 @@ class BidirectionalLSTM(Module):
 
 class SimpleLSTM(Module):
     def __init__(self, model_configs):
-        super(SimpleLSTM).__init__()
-        self.configs = model_configs
+        super(SimpleLSTM, self).__init__()
 
+        self.configs = model_configs
         self.lstm_1 = LSTM(input_size=1, hidden_size=self.configs.lstm_output_dim, num_layers=self.configs.lstm_layers,
                            batch_first=True)
         self.dense_2 = Linear(in_features=self.configs.lstm_output_dim, out_features=self.configs.dense_1_output_dim)
