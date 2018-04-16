@@ -1,7 +1,7 @@
 from utils.config_utils import get_config_from_json
 from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
-from model import BidirectionalLSTM
+from model import SimpleLSTM
 from trainer import AudioTrainer
 from logger import AudioLogger
 from torch.optim import Adam
@@ -21,7 +21,7 @@ audio_data = AudioData(configs=model_configs)
 train_loader = DataLoader(dataset=audio_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=4)
 
 # Model
-audio_model = BidirectionalLSTM(model_configs=model_configs)
+audio_model = SimpleLSTM(model_configs=model_configs)
 audio_model.cuda()
 
 # Training Params
