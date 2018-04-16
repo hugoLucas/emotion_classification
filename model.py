@@ -43,7 +43,7 @@ class SimpleLSTM(Module):
 
     def forward(self, x):
         x, _ = self.lstm_1(x)
-        x = relu(self.dense_2(x[-1]))
+        x = relu(self.dense_2(x[:, -1, :]))
         x = relu(self.dense_3(x))
         x = self.dense_4(x)
         return x
