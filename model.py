@@ -28,3 +28,22 @@ class BidirectionalLSTM(Module):
         x = relu(self.dense_3(x))
         x = self.dense_4(x)
         return x
+
+
+class SimpleLSTM(Module):
+    def __init__(self, model_configs):
+        super(SimpleLSTM).__init__()
+        self.configs = model_configs
+
+        self.lstm_1 = LSTM(input_size=1, hidden_size=self.configs.lstm_output_dim, num_layers=self.configs.lstm_layers,
+                           batch_first=True)
+        self.dense_2 = Linear(in_features=self.configs.lstm_output_dim, out_features=self.configs.dense_1_output_dim)
+        self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
+        self.dense_4 = Linear(in_features=self.configs.dense_2_output_dim, out_features=self.configs.dense_3_output_dim)
+
+    def forward(self, x):
+        x, _ = self.lstm_1(x)
+        x = relu(self.dense_2(x[-1]))
+        x = relu(self.dense_3(x))
+        x = self.dense_4(x)
+        return x
