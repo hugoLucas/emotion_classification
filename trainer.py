@@ -21,59 +21,64 @@ class AudioTrainer:
 
             accuracy_sum, loss_sum, n_iter = 0, 0, 0
             while n_iter < self.configs.iterations:
-                # try:
-                for i, datum in enumerate(self.data):
+                try:
+                    for i, datum in enumerate(self.data):
 
-                    # Load inputs and make them cuda accessible
-                    inputs, labels = datum
-                    inputs = inputs.type(FloatTensor)
-                    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                        # Load inputs and make them cuda accessible
+                        inputs, labels = self.convert_data(datum)
 
-                    # Skip this iteration if the batch is incomplete
-                    if not inputs.shape[0] == labels.shape[0] == self.configs.batch_size:
-                        continue
+                        # Skip this iteration if the batch is incomplete
+                        if not inputs.shape[0] == labels.shape[0] == self.configs.batch_size:
+                            continue
 
-                    # Zero out grads, go forward
-                    self.optimizer.zero_grad()
-                    outputs = self.model(inputs)
+                        # Zero out grads, go forward
+                        self.optimizer.zero_grad()
+                        outputs = self.model(inputs)
 
-                    # Calculate loss and propagate backwards
-                    loss = self.loss(outputs, labels)
-                    loss.backward()
-                    self.optimizer.step()
+                        # Calculate loss and propagate backwards
+                        loss = self.loss(outputs, labels)
+                        loss.backward()
+                        self.optimizer.step()
 
-                    # Calculate accuracy of predictions
-                    _, max_index = topk(outputs, k=1)
-                    accuracy = sum(eq(squeeze(max_index), labels)).data[0]
+                        # Track epoch results
+                        current_accuracy = self.calculate_accuracy(outputs, labels)
+                        accuracy_sum += current_accuracy
+                        loss_sum += loss.data[0]
+                        n_iter += 1
 
-                    # Track epoch results
-                    accuracy_sum += accuracy
-                    loss_sum += loss.data[0]
-                    n_iter += 1
+                        # Log iteration results
+                        if n_iter % self.configs.log_interval == 0:
+                            self.log_batch_results(current_accuracy, loss.data[0], n_iter, epoch)
+                            print("{}.{} complete....".format(epoch, n_iter))
 
-                    # Log iteration results
-                    if n_iter % self.configs.log_interval == 0:
-                        self.log_batch_results(accuracy, loss.data[0], n_iter, epoch)
-                        print("{}.{} complete....".format(epoch, n_iter))
-
-                    if n_iter >= self.configs.iterations:
-                        break
-
-                # except TypeError:
-                #     print("Error on Epoch {}...".format(epoch))
-                #     break
+                        if n_iter >= self.configs.iterations:
+                            break
+                except TypeError:
+                    print("Error on Epoch {}...".format(epoch))
 
             self.log_epoch_results(accuracy_sum, loss_sum, n_iter, epoch)
 
             # Save model
             if self.save_path is not None:
                 save(self.model.state_dict(), self.save_path)
-
             print("Epoch {} complete.".format(epoch))
-
             self.logger.export()
-
         self.logger.close()
+
+    @staticmethod
+    def convert_data(datum):
+        inputs, labels = datum
+        inputs = inputs.type(FloatTensor)
+        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+
+        return inputs, labels
+
+    @staticmethod
+    def calculate_accuracy(outputs, labels):
+        _, max_index = topk(outputs, k=1)
+        accuracy = sum(eq(squeeze(max_index), labels)).data[0]
+
+        return accuracy
 
     def log_epoch_results(self, accuracy_sum, loss_sum, iter, epoch):
         self.logger.add_data_point(self.configs.avg_acc, accuracy_sum/(iter * self.configs.batch_size), epoch)
