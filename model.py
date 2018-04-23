@@ -13,9 +13,8 @@ class BidirectionalLSTM(Module):
         super(BidirectionalLSTM, self).__init__()
 
         self.configs = model_configs
-        self.n_features = self.configs.audio_sample_rate * self.configs.audio_max_length
-        self.lstm_1 = LSTM(input_size=1, hidden_size=self.configs.lstm_output_dim,
-                           num_layers=self.configs.lstm_layers, batch_first=True, dropout=1, bidirectional=True)
+        self.lstm_1 = LSTM(input_size=36, hidden_size=self.configs.lstm_output_dim,
+                           num_layers=self.configs.lstm_layers, batch_first=True, bidirectional=True)
         self.dense_2 = Linear(in_features=2 * self.configs.lstm_output_dim,
                               out_features=self.configs.dense_1_output_dim)
         self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
@@ -35,7 +34,7 @@ class SimpleLSTM(Module):
         super(SimpleLSTM, self).__init__()
 
         self.configs = model_configs
-        self.lstm_1 = LSTM(input_size=1, hidden_size=self.configs.lstm_output_dim, num_layers=self.configs.lstm_layers,
+        self.lstm_1 = LSTM(input_size=36, hidden_size=self.configs.lstm_output_dim, num_layers=self.configs.lstm_layers,
                            batch_first=True)
         self.dense_2 = Linear(in_features=self.configs.lstm_output_dim, out_features=self.configs.dense_1_output_dim)
         self.dense_3 = Linear(in_features=self.configs.dense_1_output_dim, out_features=self.configs.dense_2_output_dim)
