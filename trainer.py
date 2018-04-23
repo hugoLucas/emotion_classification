@@ -4,10 +4,11 @@ from os import path
 
 
 class AudioTrainer:
-    def __init__(self, configs, model, loader, loss_fn, optimizer, logger, load_path=None, save_path=None):
+    def __init__(self, configs, model, train_loader, loss_fn, optimizer, logger, load_path=None, save_path=None,
+                 test_loader=None):
         self.configs = configs
         self.model = model
-        self.data = loader
+        self.data = train_loader
         self.loss = loss_fn
         self.optimizer = optimizer
         self.logger = logger
@@ -15,6 +16,8 @@ class AudioTrainer:
         self.load_path = load_path
         if self.load_path is not None:
             self.save_path = self.load_path if save_path is None else save_path
+
+        self.test_loader = test_loader
 
     def train(self):
         for epoch in range(0, self.configs.epochs):
