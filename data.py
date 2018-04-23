@@ -43,7 +43,7 @@ class AudioData(Dataset):
         repo = self.configs.data_dir if self.training_data else self.configs.test_dir
         folders = filter(lambda f: self.configs.folder_tag in f and '.' not in f, listdir(repo))
         for fld in folders:
-            fld_path = path.join(self.configs.data_dir, fld)
+            fld_path = path.join(repo, fld)
             files = filter(lambda f: self.configs.file_type in f, listdir(fld_path))
 
             for fl in files:
