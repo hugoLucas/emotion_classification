@@ -17,10 +17,12 @@ RUN_CONFIG_FILE = "config_1.json"
 model_configs, _ = get_config_from_json(path.join('./configs', RUN_CONFIG_FILE))
 
 # Training Data
-audio_data = AudioData(configs=model_configs)
-train_loader = DataLoader(dataset=audio_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=4)
+train_data = AudioData(configs=model_configs)
+train_loader = DataLoader(dataset=train_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=4)
 
 # Test Data
+test_data = AudioData(configs=model_configs, training_data=False)
+test_loader = DataLoader(dataset=train_data, batch_size=model_configs.batch_size, shuffle=True, num_workers=4)
 
 # Model
 audio_model = BidirectionalLSTM(model_configs=model_configs)
@@ -34,7 +36,8 @@ optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 logger = AudioLogger("./run.json")
 
 # Train Model
-trainer = AudioTrainer(model_configs, audio_model, train_loader, loss_fn, optimizer, logger,
-                       load_path="./models/mfcc.pt", save_path="./models/mfcc_2.pt")
+trainer = AudioTrainer(configs=model_configs, model=audio_model, train_loader=train_loader, loss_fn=loss_fn,
+                       optimizer=optimizer, logger=logger, load_path="./models/mfcc.pt",
+                       save_path="./models/mfcc_2.pt", test_loader=test_loader)
 trainer.load_model()
 trainer.train()
