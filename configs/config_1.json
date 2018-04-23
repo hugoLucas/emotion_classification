@@ -20,7 +20,8 @@
   "dense_2_output_dim": 450,
   "dense_3_output_dim": 8,
 
-  "avg_acc": "data/average_accuracy",
+  "avg_acc_train": "data/average_acc_train",
+  "avg_acc_test": "data/average_acc_test",
   "avg_loss": "data/average_loss",
   "inst_acc": "data/accuracy",
   "inst_loss": "data/loss"
