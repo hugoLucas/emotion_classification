@@ -1,22 +1,22 @@
 {
   "data_dir": "/home/hugolucas/emotion_data",
+  "test_dir": "/home/hugolucas/emotion_data_test",
   "folder_tag": "Actor_",
   "file_type": ".wav",
   "emotion_index": 2,
 
-  "audio_sample_rate": 200,
-  "audio_max_length": 3,
+  "audio_max_length": 5,
 
   "batch_size": 10,
-  "iterations": 30,
+  "iterations": 31,
   "log_interval": 10,
   "epochs": 50,
-  "learning_rate": 0.005,
+  "learning_rate": 0.0005,
 
-  "lstm_layers": 5,
-  "lstm_output_dim": 200,
-  "dense_1_output_dim": 512,
-  "dense_2_output_dim": 250,
+  "lstm_layers": 3,
+  "lstm_output_dim": 600,
+  "dense_1_output_dim": 712,
+  "dense_2_output_dim": 450,
   "dense_3_output_dim": 8,
 
   "avg_acc": "data/average_accuracy",
