@@ -17,8 +17,8 @@ class AudioData(Dataset):
 
         # Extract audio features
         audio_data = self.process_audio(audio_data, sr)
-        if audio_data.shape[0] < 41:
-            audio_data = concatenate((audio_data, zeros((41 - audio_data.shape[0], 36))))
+        if audio_data.shape[0] < 51:
+            audio_data = concatenate((audio_data, zeros((51 - audio_data.shape[0], 36))))
 
         # Extract label out, subtract one to make first label 0 rather than 1
         file_name = self.file_list[index].split()[-1]
