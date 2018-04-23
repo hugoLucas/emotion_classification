@@ -1,5 +1,5 @@
+from numpy import concatenate, swapaxes, zeros
 from librosa.feature import mfcc, delta
-from numpy import concatenate, swapaxes
 from torch.utils.data import Dataset
 from librosa.core import load
 from os import listdir, path
@@ -17,6 +17,8 @@ class AudioData(Dataset):
 
         # Extract audio features
         audio_data = self.process_audio(audio_data, sr)
+        if audio_data.shape[0] < 41:
+            audio_data = concatenate((audio_data, zeros((41 - audio_data.shape[0], 36))))
 
         # Extract label out, subtract one to make first label 0 rather than 1
         file_name = self.file_list[index].split()[-1]
@@ -58,7 +60,7 @@ class AudioData(Dataset):
         :return: a feature array of dimension [n_samples, n_mfcc] containing the computed MFCCs and their time
                  derivatives
         """
-        mel_freq_coeff = mfcc(y=audio_data, sr=sr, n_mfcc=13, hop_length=int(0.20*sr), n_fft=int(.10*sr))
+        mel_freq_coeff = mfcc(y=audio_data, sr=sr, n_mfcc=13, hop_length=int(.10*sr), n_fft=int(.20*sr))
         mel_freq_coeff = mel_freq_coeff[1:, :]
 
         mel_freq_coeff_delta = delta(mel_freq_coeff)
