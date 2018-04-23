@@ -32,10 +32,10 @@ class AudioData(Dataset):
 
     def load_files(self):
         """
-        Iterates through all folders in data directory and stores each folder's contents in a list. Used to make
-        indexing of data set easier.
+        Iterates through all folders in train_data directory and stores each folder's contents in a list. Used to make
+        indexing of train_data set easier.
 
-        :return: a list containing the file path to each audio file in the data set
+        :return: a list containing the file path to each audio file in the train_data set
         :rtype: List[str]
         """
         file_list = []
