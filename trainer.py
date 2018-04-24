@@ -15,8 +15,7 @@ class AudioTrainer:
         self.logger = logger
 
         self.load_path = load_path
-        if self.load_path is not None:
-            self.save_path = self.load_path if save_path is None else save_path
+        self.save_path = save_path
 
         self.test_data = test_loader
 
@@ -49,9 +48,7 @@ class AudioTrainer:
             test_acc = self.test_model()
             self.log_epoch_results(accuracy_sum, loss_sum, test_acc, n_iter, epoch)
 
-            # Save model
-            if self.save_path is not None:
-                save(self.model.state_dict(), self.save_path)
+            self.save_model()
             print("Epoch {} complete.".format(epoch))
             self.logger.export()
         self.logger.close()
@@ -132,4 +129,8 @@ class AudioTrainer:
             if path.isfile(self.load_path):
                 self.model.load_state_dict(load(self.load_path))
             else:
-                raise ValueError("Cannot find model save file: " + self.load_path)
+                print("Load file not found, starting fresh....\n")
+
+    def save_model(self):
+        if self.save_path is not None:
+            save(self.model.state_dict(), self.save_path)
