@@ -61,9 +61,11 @@ class AudioTrainer:
                     outputs, labels = self.feed_forward(datum)
                     if outputs.shape[0] == 1:
                             continue
-                    else:
-                        accuracy_sum += self.calculate_accuracy(outputs, labels)
-                        n_iter += 1
+                    accuracy_sum += self.calculate_accuracy(outputs, labels)
+                    n_iter += 1
+
+                    if n_iter >= self.configs.test_iterations:
+                        break
             except ValueError:
                 print("Error on iter {}...".format(n_iter))
         return accuracy_sum / (n_iter * self.configs.batch_size)
