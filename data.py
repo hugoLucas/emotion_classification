@@ -5,6 +5,33 @@ from librosa.core import load
 from os import listdir, path
 
 
+def process_audio(audio_data, sr):
+    """
+    Computes the Mel-Frequency Cepstral Coefficients and their first and second order derivatives. Concatenates then
+    all into a single numpy array and the swaps the axis from [n_mfcc, n_samples] to [n_samples, n_mfcc].
+
+    :param audio_data: floating point time series of an audio file
+    :param sr: the sample rate at which train_data was loaded
+    :return: a feature array of dimension [n_samples, n_mfcc] containing the computed MFCCs and their time
+             derivatives
+    """
+    mel_freq_coeff = mfcc(y=audio_data, sr=sr, n_mfcc=13, hop_length=int(.10 * sr), n_fft=int(.20 * sr))
+    mel_freq_coeff = mel_freq_coeff[1:, :]
+
+    mel_freq_coeff_delta = delta(mel_freq_coeff, width=7)
+    mel_freq_coeff_delta_delta = delta(mel_freq_coeff, width=7, order=2)
+
+    features = concatenate((mel_freq_coeff, mel_freq_coeff_delta, mel_freq_coeff_delta_delta), axis=0)
+    features = swapaxes(features, 0, 1)
+    return features
+
+
+def pad_array(audio_data):
+    if audio_data.shape[0] < 51:
+        audio_data = concatenate((audio_data, zeros((51 - audio_data.shape[0], 36))))
+    return audio_data
+
+
 class AudioData(Dataset):
     def __init__(self, configs, training_data=True):
         self.configs = configs
@@ -17,9 +44,8 @@ class AudioData(Dataset):
         audio_data, sr = load(path.join(self.dir, file_name), duration=self.configs.audio_max_length)
 
         # Extract audio features
-        audio_data = self.process_audio(audio_data, sr)
-        if audio_data.shape[0] < 51:
-            audio_data = concatenate((audio_data, zeros((51 - audio_data.shape[0], 36))))
+        audio_data = process_audio(audio_data, sr)
+        audio_data = pad_array(audio_data)
 
         # Extract label out, subtract one to make first label 0 rather than 1
         file_name = self.file_list[index].split()[-1]
@@ -43,25 +69,3 @@ class AudioData(Dataset):
         file_list = list(filter(lambda f: self.configs.file_type in f, listdir(repo)))
 
         return file_list, repo
-
-    @staticmethod
-    def process_audio(audio_data, sr):
-        """
-        Computes the Mel-Frequency Cepstral Coefficients and their first and second order derivatives. Concatenates then
-        all into a single numpy array and the swaps the axis from [n_mfcc, n_samples] to [n_samples, n_mfcc].
-
-        :param audio_data: floating point time series of an audio file
-        :param sr: the sample rate at which train_data was loaded
-        :return: a feature array of dimension [n_samples, n_mfcc] containing the computed MFCCs and their time
-                 derivatives
-        """
-        mel_freq_coeff = mfcc(y=audio_data, sr=sr, n_mfcc=13, hop_length=int(.10*sr), n_fft=int(.20*sr))
-        mel_freq_coeff = mel_freq_coeff[1:, :]
-
-        mel_freq_coeff_delta = delta(mel_freq_coeff)
-        mel_freq_coeff_delta_delta = delta(mel_freq_coeff, order=2)
-
-        features = concatenate((mel_freq_coeff, mel_freq_coeff_delta, mel_freq_coeff_delta_delta), axis=0)
-        features = swapaxes(features, 0, 1)
-        return features
-
