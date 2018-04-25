@@ -9,12 +9,12 @@ class AudioData(Dataset):
     def __init__(self, configs, training_data=True):
         self.configs = configs
         self.training_data = training_data
-        self.file_list = self.load_files()
+        self.file_list, self.dir = self.load_files()
         self.max_samples = None
 
     def __getitem__(self, index):
-        file_path = self.file_list[index]
-        audio_data, sr = load(file_path, duration=self.configs.audio_max_length)
+        file_name = self.file_list[index]
+        audio_data, sr = load(path.join(self.dir, file_name), duration=self.configs.audio_max_length)
 
         # Extract audio features
         audio_data = self.process_audio(audio_data, sr)
@@ -32,24 +32,17 @@ class AudioData(Dataset):
 
     def load_files(self):
         """
-        Iterates through all folders in train_data directory and stores each folder's contents in a list. Used to make
+        Iterates through all files in train_data directory and stores each folder's contents in a list. Used to make
         indexing of train_data set easier.
 
         :return: a list containing the file path to each audio file in the train_data set
         :rtype: List[str]
         """
-        file_list = []
 
         repo = self.configs.data_dir if self.training_data else self.configs.test_dir
-        folders = filter(lambda f: self.configs.folder_tag in f and '.' not in f, listdir(repo))
-        for fld in folders:
-            fld_path = path.join(repo, fld)
-            files = filter(lambda f: self.configs.file_type in f, listdir(fld_path))
+        file_list = list(filter(lambda f: self.configs.file_type in f, listdir(repo)))
 
-            for fl in files:
-                file_list.append(path.join(fld_path, fl))
-
-        return file_list
+        return file_list, repo
 
     @staticmethod
     def process_audio(audio_data, sr):
