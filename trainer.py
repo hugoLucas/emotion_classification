@@ -4,6 +4,14 @@ from numpy import zeros
 from os import path
 
 
+def convert_data(datum):
+    inputs, labels = datum
+    inputs = inputs.type(FloatTensor)
+    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+
+    return inputs, labels
+
+
 class AudioTrainer:
     def __init__(self, configs, model, train_loader, loss_fn, optimizer, logger, load_path=None, save_path=None,
                  test_loader=None):
@@ -72,7 +80,7 @@ class AudioTrainer:
 
     def feed_forward(self, datum):
         # Load inputs and make them cuda accessible
-        inputs, labels = self.convert_data(datum)
+        inputs, labels = convert_data(datum)
 
         # Skip this iteration if the batch is incomplete
         if not inputs.shape[0] == labels.shape[0] == self.configs.batch_size:
@@ -96,14 +104,6 @@ class AudioTrainer:
         self.optimizer.step()
 
         return outputs, labels, loss
-
-    @staticmethod
-    def convert_data(datum):
-        inputs, labels = datum
-        inputs = inputs.type(FloatTensor)
-        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-
-        return inputs, labels
 
     @staticmethod
     def calculate_accuracy(outputs, labels):
