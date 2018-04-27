@@ -25,8 +25,8 @@ class Application:
         self.button_1 = Button(self.root, textvariable=self.record_label, fg="red", height=2, command=self.on_record)
         self.button_1.grid(row=2, column=1, columnspan=3, pady=(0, 10))
 
-        # state=DISABLED
-        self.button_2 = Button(self.root, textvariable=self.analyze_label, fg="black", height=2, command=self.on_analyze)
+        self.button_2 = Button(self.root, textvariable=self.analyze_label, fg="black", height=2, state=DISABLED,
+                               command=self.on_analyze)
         self.button_2.grid(row=2, column=6, columnspan=3, pady=(0, 10))
 
         self.button_3 = Button(self.root, text=self.quit_label, fg="black", height=2, command=self.root.destroy)
