@@ -24,7 +24,7 @@ def get_emotion(output_index):
     return emotions.get(output_index, "ERROR")
 
 
-def load_data_from_path(data_path, audio_duration):
+def load_data_from_path(data_path, audio_duration=5):
     audio_data, sr = lib_load(data_path, duration=audio_duration)
     audio_data = process_audio(audio_data, sr)
     audio_data = pad_array(audio_data)
