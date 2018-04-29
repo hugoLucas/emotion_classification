@@ -5,6 +5,7 @@ from data import process_audio, pad_array
 from torch.nn.functional import softmax
 from librosa import load as lib_load
 from model import BidirectionalLSTM
+from torch.cuda import is_available
 from torch import load as py_load
 
 
@@ -44,7 +45,12 @@ class Predictor:
     def __init__(self, config_path, model_state):
         self.configs, _ = get_config_from_json(config_path)
         self.model = BidirectionalLSTM(model_configs=self.configs)
-        self.model.load_state_dict(py_load(model_state))
+
+        if is_available():
+            self.model.load_state_dict(py_load(model_state))
+        else:
+            self.model.load_state_dict(py_load(model_state, map_location=lambda storage, loc: storage))
+
         self.model.eval()
 
     def make_single_prediction(self, audio_data):
@@ -52,4 +58,9 @@ class Predictor:
         output = softmax(output)
         val, index = max(output, 1)
 
-        return get_emotion(index.data[0])
+        if is_available():
+            index = index.data[0]
+        else:
+            index = index.data.cpu().numpy()[0][0]
+
+        return get_emotion(index)
