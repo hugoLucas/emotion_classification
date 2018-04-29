@@ -12,13 +12,25 @@ WAVE_OUTPUT_FILENAME = "./output.wav"
 
 
 class PredictionThread(threading.Thread):
+    """
+    Creates a thread in order to pass a recorded audio file to Predictor to avoid blocking the main UI thread.
+    """
     def __init__(self, predictor, file_path, callback_fn):
+        """
+        :param predictor:       a Predictor object
+        :param file_path:       the file path to the User's recording
+        :param callback_fn:     a function to call once the prediction is made
+        """
         threading.Thread.__init__(self)
         self.cb = callback_fn
         self.path = file_path
         self.pred = predictor
 
     def run(self):
+        """
+        Loads recording and passes it to the model to make a prediction.
+        :return: None
+        """
         data = load_data_from_path(self.path)
         data = to_variable(data)
 
@@ -27,21 +39,31 @@ class PredictionThread(threading.Thread):
 
 
 class RecorderThread(threading.Thread):
+    """
+    Creates a thread to record the User's voice to avoid blocking the main UI thread.
+    """
     def __init__(self, callback_fn):
+        """
+        :param callback_fn:     a function to call once the recording is complete
+        """
         threading.Thread.__init__(self)
         self.cb = callback_fn
 
     def run(self):
+        """
+        Records a User's voice in order to classify at a later time.
+        :return:
+        """
         audio = pyaudio.PyAudio()
         stream = audio.open(format=FORMAT, channels=CHANNEL, rate=RATE, input=True, frames_per_buffer=CHUNK)
-        print("* recording")
+        print("*** recording ***")
 
         frames = []
         for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
             data = stream.read(CHUNK)
             frames.append(data)
 
-        print("* done recording")
+        print("*** done ***")
 
         stream.stop_stream()
         stream.close()
@@ -55,13 +77,3 @@ class RecorderThread(threading.Thread):
         wf.close()
 
         self.cb()
-
-
-def center_window(root, width=800, height=400):
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-
-    x = (screen_width / 2) - (width / 2)
-    y = (screen_height / 2) - (height / 2)
-
-    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
