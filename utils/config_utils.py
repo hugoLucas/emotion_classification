@@ -2,6 +2,7 @@ import json
 from bunch import Bunch
 
 
+# Code snippet taken from the TensorFlow Project Template
 def get_config_from_json(json_file):
     """
     Get the config from a json file
@@ -17,6 +18,3 @@ def get_config_from_json(json_file):
 
     return config, config_dict
 
-
-def sum_list(input_list):
-    return sum(input_list)
