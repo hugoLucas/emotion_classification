@@ -13,9 +13,10 @@ class Application:
     quit_label = "Quit"
 
     def __init__(self):
+        self.predictor = Predictor(config_path="/home/hugo/PycharmProjects/emotion_classification/configs/config_1.json",
+                                   model_state="/home/hugo/PycharmProjects/emotion_classification/final_model.pt")
         self.root = Tk()
         self.build_strings()
-        self.build_predictor()
 
         self.root.wm_title(self.window_title)
 
@@ -35,7 +36,9 @@ class Application:
     def on_analyze(self):
         self.analyze_label.set("Analyzing...")
 
-        pred = PredictionThread(predictor=self.predictor, file_path="./output.wav", callback_fn=self.after_analyze)
+        pred = PredictionThread(predictor=self.predictor,
+                                file_path="/home/hugo/PycharmProjects/emotion_classification/ui/output.wav",
+                                callback_fn=self.after_analyze)
         pred.start()
 
     def after_analyze(self, emotional_state):
@@ -62,10 +65,6 @@ class Application:
 
         self.record_label.set("Record")
         self.analyze_label.set("Analyze")
-
-    def build_predictor(self):
-        self.predictor = Predictor(config_path="/home/hugolucas/PycharmProjects/sound/configs/config_1.json",
-                                   model_state="/home/hugolucas/PycharmProjects/sound/models/final_model.pt")
 
 app = Application()
 app.root.mainloop()
