@@ -7,6 +7,10 @@ from logger import AudioLogger
 from torch.optim import Adam
 from data import AudioData
 
+"""
+This script should be used to coordinate the training of a PyTorch model. 
+"""
+
 # This import must be maintained in order for script to work on paperspace
 from os import path
 
@@ -28,16 +32,16 @@ test_loader = DataLoader(dataset=train_data, batch_size=model_configs.batch_size
 audio_model = BidirectionalLSTM(model_configs=model_configs)
 audio_model.cuda()
 
-# Training Params
+# Training Loss and Optimizer
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(audio_model.parameters(), lr=model_configs.learning_rate)
 
 # Logger
 logger = AudioLogger("./run.json")
 
-# Train Model
+# Start Model Training
 trainer = AudioTrainer(configs=model_configs, model=audio_model, train_loader=train_loader, loss_fn=loss_fn,
-                       optimizer=optimizer, logger=logger, load_path="./models/mfcc.pt",
-                       save_path="./models/mfcc_2.pt", test_loader=test_loader)
+                       optimizer=optimizer, logger=logger, load_path="./models/full_model4.pt",
+                       save_path="./models/full_model4.pt", test_loader=test_loader)
 trainer.load_model()
 trainer.train()
