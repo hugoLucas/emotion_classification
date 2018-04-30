@@ -2,6 +2,9 @@ from tensorboardX import SummaryWriter
 
 
 class AudioLogger:
+    """
+    A simple interface to make the logging of training results easier and less verbose.
+    """
     def __init__(self, destination):
         self.client = SummaryWriter()
         self.destination = destination
